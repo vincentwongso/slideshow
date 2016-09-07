@@ -1,0 +1,12 @@
+[31-Aug-2016 05:00:56 America/Denver] PHP Parse error:  syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$' in /home1/nlineta3/public_html/vmwedding/vendor/symfony/http-kernel/HttpKernel.php on line 54
+[31-Aug-2016 05:01:05 America/Denver] PHP Parse error:  syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$' in /home1/nlineta3/public_html/vmwedding/vendor/symfony/http-kernel/HttpKernel.php on line 54
+[31-Aug-2016 05:01:19 America/Denver] PHP Parse error:  syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$' in /home1/nlineta3/public_html/vmwedding/vendor/symfony/http-kernel/HttpKernel.php on line 54
+[31-Aug-2016 05:04:46 America/Denver] PHP Parse error:  syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$' in /home1/nlineta3/public_html/vmwedding/vendor/symfony/http-kernel/HttpKernel.php on line 54
+[01-Sep-2016 05:13:10 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[01-Sep-2016 05:13:20 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[01-Sep-2016 05:13:31 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[01-Sep-2016 05:13:56 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[01-Sep-2016 05:14:04 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[01-Sep-2016 05:14:29 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[02-Sep-2016 03:08:05 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
+[06-Sep-2016 00:24:11 America/Denver] PHP Fatal error:  Class 'Unirest\Request' not found in /home1/nlineta3/public_html/vmwedding/web/scrape.php on line 11
