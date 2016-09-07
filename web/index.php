@@ -3,67 +3,123 @@
 // web/index.php
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Instagram\Auth;
-use Instagram\Instagram;
+use InstagramAPI\Instagram;
 
-
-$authConfig = array(
-    'client_id'         => 'd30c2a2047cb4137bd57517c838d0142',
-    'client_secret'     => '9e047e0e60b5408d8b4973ba0dd97843',
-    'redirect_uri'      => 'http://'.$_SERVER["SERVER_NAME"].':'.$_SERVER["SERVER_PORT"].'/slideshow',
-    'scope'             => array( 'likes', 'comments', 'relationships', 'public_content', 'follower_list' )
-);
-
-$auth = new Auth($authConfig);
+const USERNAME_ID  = '3858675695';
 
 $app = new Silex\Application();
 $app['debug'] = true;
+
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
 ));
 
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver'   => 'pdo_mysql',
+        'host'      => 'localhost',
+        'dbname'    => 'slideshow',
+        'user'      => 'root',
+        'password'  => 'master5t4r3E!',
+    ),
+));
 
+/**
+ * Display all staging instagram images
+ */
+$app->get('/presenter', function () use ($app) {
+    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
 
-$app->get('/', function () use ($app, $auth) {
-    return $auth->authorize();
+    $results = $app['db']->fetchAll($sql, array(1));
+    return $app['twig']->render('presenter.twig', array(
+        'results' => $results,
+    ));
 });
 
-$app->get('/slideshow', function () use ($app, $auth) {
-    session_start();
-    $_SESSION['instagram_access_token'] = $auth->getAccessToken( $_GET['code'] );
-    $instagram = new Instagram();
-    $instagram->setAccessToken( $_SESSION['instagram_access_token'] );
-    $currentUser = $instagram->getCurrentUser();
+/**
+ * Fetch new data
+ */
+$app->get('/fetch', function () use ($app) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_URL, "http://".$_SERVER["HTTP_HOST"]."/scrape.php");
+    $data = curl_exec($ch);
+    print_r($data);
+    curl_close($ch);
+    return $app->redirect('/presenter');
+});
 
-    $tag = $instagram->getTag( 'vmwedding1709' );
-    $results = $tag->getMedia();
-    $followers = $currentUser->getFollows();
-    foreach ($followers as $follower) {
-        $medias = $follower->getMedia();
-        print_r($medias);
-    }
+/**
+ * Approve instagram feed
+ */
+$app->get('/approve/{id}', function ($id) use($app) {
+    $app['db']->update('slideshow_queue',
+        [
+            "staging" => 0
+        ],
+        [
+            "id" => $id
+        ]
+    );
+
+    return $app->redirect('/presenter');
+});
+
+/**
+ * slideshow
+ */
+$app->get('/slideshow', function () use($app) {
+    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
+
+    $results = $app['db']->fetchAll($sql, array(0));
+
     return $app['twig']->render('slideshow.twig', array(
         'results' => $results,
     ));
 });
 
-$app->get('/slideshow/update', function () use ($app, $auth) {
-    session_start();
-    $instagram = new Instagram();
-    $instagram->setAccessToken( $_SESSION['instagram_access_token'] );
-    $tag = $instagram->getTag( 'vmwedding1709' );
-    $medias = $tag->getMedia();
-    $results = [];
-    foreach ($medias as $media) {
-        $image = $media->getStandardResImage();
-        $results[] = [
-            "url" => $image->url,
-            "width" => $image->width,
-            "height" => $image->height
-        ];
-    }
+/**
+ * slideshow update return json
+ */
+$app->get('/slideshow/update', function () use($app) {
+    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
+    $results = $app['db']->fetchAll($sql, array(0));
+
     return $app->json($results);
 });
+
+$app->get('/slideshow/scrape', function () use ($app, $auth) {
+    $instagram = new Instagram('vmwedding1709', 'Rusty123', false, $IGDataPath = 'images');
+    $instagram->login();
+    /** @var \InstagramAPI\FollowingResponse $followingResponse */
+    $followingResponse = $instagram->getUserFollowings(USERNAME_ID);
+    $followerResponse = $instagram->getUserFollowers(USERNAME_ID);
+    $users = [];
+    $followingUsers = $followingResponse->getFollowings();
+    $followerUsers = $instagram->getUserFollowers(USERNAME_ID);
+    $users = array_merge($followingUsers, $followerUsers);
+    /** @var \InstagramAPI\User $user */
+    /*foreach ($users as $user) {
+        $user->getUsernameId();
+    }*/
+    /** @var \InstagramAPI\TagFeedResponse $tagFeedResponse */
+    $tagFeedResponse = $instagram->tagFeed("vmwedding1709");
+    $items = $tagFeedResponse->getItems();
+    /** @var \InstagramAPI\Item $item */
+    foreach ($items as $item) {
+        $imageVersions = $item->getImageVersions();
+        print $item->getUser()->getUsername().":";
+            print "<img src='".$imageVersions[0]->getUrl()."' /><br />";
+        print "<br />";
+    }
+    print_r($items);exit;
+});
+
+$app->get('/slideshow/error_log', function () use ($app) {
+    $log = file_get_contents('./error_log');
+    print_r($log);exit;
+});
+
 
 $app->run();

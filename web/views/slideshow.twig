@@ -11,12 +11,12 @@
 <body>
 <div id="maximage" class="cycle-slideshow"
      data-cycle-fx="fadeout"
-     data-cycle-timeout="7000"
+     data-cycle-timeout="5000"
      data-cycle-center-horz=true
      data-cycle-center-vert=true
 >
     {% for result in results %}
-        <img src="{{ result.url }}" alt=""  />
+        <img src="{{ result.image_url }}" alt=""  />
     {% endfor %}
 </div>
 
@@ -28,17 +28,21 @@
         $(function(){
             $.ajax({
                 method: "GET",
-                url: "/slideshow/update"
+                url: "/index.php/slideshow/update"
             }).done(function( data ) {
-                $('.cycle-slideshow').html("");
                 for (var i=0; i < data.length; i++) {
-                    $('.cycle-slideshow').append('<img src="'+data[i].url+'" width="'+data[i].width+'" height="'+data[i].height+'">');
+                    if ($("img[src$='"+data[i].image_url+"']").length == 0) {
+                        console.log("Adding new image: ", data[i].image_url);
+                        var newImg = '<img src="'+data[i].image_url+'" />';
+                        $('.cycle-slideshow').cycle('add', newImg);
+                    } else {
+                        console.log("Image already exist: ", data[i].image_url);
+                    }
                 }
-                $('.cycle-slideshow').cycle('reinit');
             });
         });
     }
-    setInterval( loadPhotos, 60000 );
+    setInterval( loadPhotos, 10000 );
 </script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+<html>
+<head>
+<style>
+    div.item {
+        margin-bottom: 20px;
+    }
+    div#fetch-data {
+        margin-bottom: 40px;
+    }
+</style>
+</head>
+<body>
+<div id="fetch-data">
+    <button type="button" onclick="window.location='/fetch';">Fetch New Data</button>
+</div>
+{% for result in results %}
+    <div class="item">
+        Uploaded by {{ result.username }}: <br />
+        <img src="{{ result.thumb_url }}" alt=""  /><br/>
+        <button type="button" onclick="window.location='/approve/{{ result.id }}';">Approve</button>
+        <!-- <button type="button" onclick="window.location=/ban/{{ result.id }}">Ban</button> -->
+    </div>
+{% endfor %}
+</body>
+</html>
