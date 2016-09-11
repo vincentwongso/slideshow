@@ -10,7 +10,6 @@ const USERNAME_ID  = '3858675695';
 $app = new Silex\Application();
 $app['debug'] = true;
 
-
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
 ));
@@ -19,19 +18,24 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
         'driver'   => 'pdo_mysql',
         'host'      => 'localhost',
-        'dbname'    => 'slideshow',
-        'user'      => 'root',
-        'password'  => 'master5t4r3E!',
+        'dbname'    => 'nlineta3_slideshow',
+        'user'      => 'nlineta3_slide',
+        'password'  => 'slide5t4r3E!',
     ),
 ));
+
+
+$config = ["use_staging" => false];
+$app['slideshow_config'] = $config;
+
 
 /**
  * Display all staging instagram images
  */
 $app->get('/presenter', function () use ($app) {
-    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
+    $sql = "SELECT * FROM slideshow_queue WHERE shown = 0 and banned = 0 order by taken_at asc";
 
-    $results = $app['db']->fetchAll($sql, array(1));
+    $results = $app['db']->fetchAll($sql);
     return $app['twig']->render('presenter.twig', array(
         'results' => $results,
     ));
@@ -67,13 +71,38 @@ $app->get('/approve/{id}', function ($id) use($app) {
 });
 
 /**
+ * Approve instagram feed
+ */
+$app->get('/ban/{id}', function ($id) use($app) {
+    $app['db']->update('slideshow_queue',
+        [
+            "banned" => 1
+        ],
+        [
+            "id" => $id
+        ]
+    );
+
+    return $app->redirect('/presenter');
+});
+
+/**
+ * Reset shown
+ *
+ */
+$app->get('/reset', function () use($app) {
+    $sql = 'UPDATE slideshow_queue SET shown = 0 ';
+
+    $app['db']->executeUpdate($sql);
+
+    return $app->redirect('/presenter');
+});
+
+/**
  * slideshow
  */
-$app->get('/slideshow', function () use($app) {
-    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
-
-    $results = $app['db']->fetchAll($sql, array(0));
-
+$app->get('/present', function () use($app) {
+    $results = getInstagramImages($app);
     return $app['twig']->render('slideshow.twig', array(
         'results' => $results,
     ));
@@ -83,11 +112,53 @@ $app->get('/slideshow', function () use($app) {
  * slideshow update return json
  */
 $app->get('/slideshow/update', function () use($app) {
-    $sql = "SELECT * FROM slideshow_queue WHERE staging = ?";
-    $results = $app['db']->fetchAll($sql, array(0));
+    $results = getInstagramImages($app);
 
     return $app->json($results);
 });
+
+
+function getInstagramImages($app) {
+    $sql = "SELECT * FROM slideshow_queue ";
+    $sql .= " WHERE shown = 0 AND banned = 0";
+    if ($app["slideshow_config"]["use_staging"]) {
+        $sql .= " AND staging = 0 ";
+    }
+    $sql .= " ORDER BY taken_at ASC LIMIT 12";
+
+    $results = $app['db']->fetchAll($sql);
+    if (count($results) > 0) {
+        markImagesAsShown($app, $results);
+    }
+
+    if (count($results) < 12) {
+
+        $results = array_merge($results, getRandomStaticImages((12 - count($results))));
+    }
+    return $results;
+}
+
+function getRandomStaticImages($total) {
+    $dir    = getcwd().'/slideshow/static/resized';
+    $files = scandir($dir);
+    $results = array_values(array_filter($files, function($file) {
+        return ($file != '.' && $file != '..');
+    }));
+    shuffle($results);
+    $results = array_slice($results, 0, $total);
+    $results = array_map(function($value) {
+        return ["image_url" => "/slideshow/static/resized/" . $value];
+    }, $results);
+
+    return $results;
+}
+
+function markImagesAsShown($app, $results) {
+    $ids = array_column($results, 'id');
+    $sql = 'UPDATE slideshow_queue SET shown = 1 WHERE id IN ('.implode(",", array_values($ids)).')';
+
+    $app['db']->executeUpdate($sql);
+}
 
 $app->get('/slideshow/scrape', function () use ($app, $auth) {
     $instagram = new Instagram('vmwedding1709', 'Rusty123', false, $IGDataPath = 'images');

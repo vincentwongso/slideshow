@@ -11,13 +11,14 @@
 </head>
 <body>
 <div id="fetch-data">
-    <button type="button" onclick="window.location='/fetch';">Fetch New Data</button>
+    <button type="button" onclick="window.location='/fetch';">Fetch New Data</button> &nbsp;<br/><br/>
+    <button type="button" onclick="window.location='/reset';">Reset Slideshow</button>
 </div>
 {% for result in results %}
     <div class="item">
         Uploaded by {{ result.username }}: <br />
         <img src="{{ result.thumb_url }}" alt=""  /><br/>
-        <button type="button" onclick="window.location='/approve/{{ result.id }}';">Approve</button>
+        <button type="button" onclick="window.location='/ban/{{ result.id }}';">Ban Image</button>
         <!-- <button type="button" onclick="window.location=/ban/{{ result.id }}">Ban</button> -->
     </div>
 {% endfor %}

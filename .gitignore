@@ -23,3 +23,4 @@ web/locales
 web/video
 doctrine-cache/
 .DS_Store
+web/slideshow

@@ -10,11 +10,13 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
         'driver'   => 'pdo_mysql',
         'host'      => 'localhost',
-        'dbname'    => 'slideshow',
-        'user'      => 'root',
-        'password'  => 'master5t4r3E!',
+        'dbname'    => 'nlineta3_slideshow',
+        'user'      => 'nlineta3_slide',
+        'password'  => 'slide5t4r3E!',
     ),
 ));
+
+sleep(rand(0, 90));
 
 $instagram = new Instagram('vmwedding1709', 'Rusty123', false, $IGDataPath = 'images');
 $instagram->login();

@@ -1,22 +1,20 @@
 <html>
 <head>
-    <link rel="stylesheet" href="http://www.aaronvanderzwan.com/maximage/lib/css/jquery.maximage.css?v=1.2" type="text/css" media="screen" charset="utf-8" />
-    <link rel="stylesheet" href="http://www.aaronvanderzwan.com/maximage/lib/css/screen.css?v=1.2" type="text/css" media="screen" charset="utf-8" />
     <style>
-        .cycle-slideshow { width: 100%; height: 100%; margin: auto; border: 1px solid #bbb; background: #ffc }
+        .cycle-slideshow { width: 100%; height: 100%; margin: auto; border: none; background: white }
         .cycle-slideshow img { opacity: 0; filter:alpha(opacity=0); }
     </style>
 
 </head>
 <body>
-<div id="maximage" class="cycle-slideshow"
+<div id="maximage"
      data-cycle-fx="fadeout"
      data-cycle-timeout="5000"
      data-cycle-center-horz=true
      data-cycle-center-vert=true
 >
     {% for result in results %}
-        <img src="{{ result.image_url }}" alt=""  />
+        <img src="{{ result.image_url }}" alt="" allow-wrap="false" />
     {% endfor %}
 </div>
 
@@ -34,7 +32,7 @@
                     if ($("img[src$='"+data[i].image_url+"']").length == 0) {
                         console.log("Adding new image: ", data[i].image_url);
                         var newImg = '<img src="'+data[i].image_url+'" />';
-                        $('.cycle-slideshow').cycle('add', newImg);
+                        $('#maximage').cycle('add', newImg);
                     } else {
                         console.log("Image already exist: ", data[i].image_url);
                     }
@@ -42,7 +40,18 @@
             });
         });
     }
-    setInterval( loadPhotos, 10000 );
+    setInterval( loadPhotos, 55000 );
+
+    $(function(){
+        $('#maximage').cycle();
+        $('#maximage').on('cycle-after', function(event, optionHash, outgoingSlideEl, incomingSlideEl, forwardFlag) {
+            console.log("Current Slide: " + optionHash.slideNum);
+            $(outgoingSlideEl).remove();
+            //console.log("current slide: " + $('#maximage').index($(outgoingSlideEl)));
+
+            //$('.cycle-slideshow').cycle('remove', (optionHash.slideNum - 2));
+        });
+    })
 </script>
 </body>
 </html>
