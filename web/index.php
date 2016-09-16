@@ -8,7 +8,7 @@ use InstagramAPI\Instagram;
 const USERNAME_ID  = '3858675695';
 
 $app = new Silex\Application();
-$app['debug'] = true;
+$app['debug'] = false;
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
@@ -28,6 +28,10 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 $config = ["use_staging" => false];
 $app['slideshow_config'] = $config;
 
+
+$app->get('/', function () use ($app) {
+    print '';exit;
+});
 
 /**
  * Display all staging instagram images
@@ -132,7 +136,6 @@ function getInstagramImages($app) {
     }
 
     if (count($results) < 12) {
-
         $results = array_merge($results, getRandomStaticImages((12 - count($results))));
     }
     return $results;
